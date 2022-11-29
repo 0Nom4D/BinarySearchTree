@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+
+from enum import IntEnum
+from typing import List
+
+
+def LinearCount(wordList: List[str], searchedWord: str) -> int:
+    word_occurrence = int(0)
+
+    for word in wordList:
+        if word.casefold() == searchedWord.casefold():
+            word_occurrence += 1
+    print(f"Occurence of word '{searchedWord}': {word_occurrence}")
+    return word_occurrence
+
+##############################################################################
+
+class AddOnSide(IntEnum):
+    UNKNOWN = -1
+    LEFT = 0
+    RIGHT = 1
+
+class Node:
+    def __init__(self, word: str):
+        self.occurrence = 1
+        self.leftTree = None
+        self.rightTree = None
+        self.word = word
+
+class BTree:
+    def __init__(self):
+        self.root = None
+
+    def isEmpty(self) -> bool:
+        return self.root is None
+
+    def getOccurrenceOfWord(self, word: str) -> int:
+        if self.isEmpty():
+            return 0
+        currentNode = self.root
+
+        while currentNode is not None:
+            if word.casefold() == currentNode.word:
+                return currentNode.occurrence
+            elif word.casefold() < currentNode.word:
+                currentNode = currentNode.leftTree
+            else:
+                currentNode = currentNode.rightTree
+        return 0
+
+    def insertInTree(self, word: str) -> None:
+        sideToAdd = AddOnSide.UNKNOWN
+        if self.isEmpty():
+            self.root = Node(word.casefold())
+            return
+        parentNode = None
+        currentNode = self.root
+
+        while currentNode is not None:
+            if word.casefold() < currentNode.word:
+                parentNode = currentNode
+                currentNode = currentNode.leftTree
+                sideToAdd = AddOnSide.LEFT
+            elif word.casefold() > currentNode.word:
+                parentNode = currentNode
+                currentNode = currentNode.rightTree
+                sideToAdd = AddOnSide.RIGHT
+            elif word.casefold() == currentNode.word:
+                currentNode.occurrence += 1
+                return
+        if sideToAdd == AddOnSide.LEFT:
+            parentNode.leftTree = Node(word.casefold())
+        elif sideToAdd == AddOnSide.RIGHT:
+            parentNode.rightTree = Node(word.casefold())
+
+def BinaryCount(bTree: BTree, searchedWord: str, wordList: List[str] = []) -> int:
+    if bTree.isEmpty():
+        for word in wordList:
+            bTree.insertInTree(word)
+
+    occurrenceOfWord = bTree.getOccurrenceOfWord(searchedWord)
+    print(f"Occurence of word '{searchedWord}': {occurrenceOfWord}")
+    return occurrenceOfWord
+
+
+def main() -> int:
+    word_list = ['aled', 'aled', 'aled', 'aledd', 'aleddddd']
+    print(BinaryCount(word_list, 'aled'))
+
+
+if __name__ == "__main__":
+    exit(main())
